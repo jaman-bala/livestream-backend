@@ -1,0 +1,53 @@
+version: "3.2"
+services:
+  db:
+    container_name: db
+    restart: always
+    image: postgres:12.4-alpine
+    environment:
+      - POSTGRES_USER=polls_superuser
+      - POSTGRES_PASSWORD=password-polls
+      - POSTGRES_DB=polls_superuser
+    ports:
+      - "5433:5433"
+    networks:
+      - custom
+  db_test:
+    container_name: "db_test"
+    restart: always
+    image: postgres:12.4-alpine
+    environment:
+      - POSTGRES_USER=polls_test
+      - POSTGRES_PASSWORD=password-test
+      - POSTGRES_DB=polls_test
+    ports:
+      - "5434:5433"
+    networks:
+      - custom
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - "9090:9090"
+    networks:
+      - custom
+  grafana:
+      image: grafana/grafana:latest
+      ports:
+        - "3000:3000"
+      volumes:
+        - ./grafana_storage:/var/lib/grafana
+      depends_on:
+        - prometheus
+      restart: always
+      networks:
+        - custom
+      user: "0"
+networks:
+  custom:
+    driver: bridge

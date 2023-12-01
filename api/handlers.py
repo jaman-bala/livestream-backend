@@ -1,6 +1,6 @@
 from logging import getLogger
 from uuid import UUID
-
+from typing import List
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
@@ -18,13 +18,18 @@ from api.schemas import ShowUser
 from api.schemas import UpdateUserRequest
 from api.schemas import UpdatedUserResponse
 from api.schemas import UserCreate
-from db.dals import User
+from db.dals import User, UserDAL
 from db.session import get_db
 
 
 logger = getLogger(__name__)
 user_router = APIRouter()
 
+@user_router.get("/", response_model=List[ShowUser])
+async def get_all_users(db: AsyncSession = Depends(get_db)):
+    user_dal = UserDAL(db)
+    users = await user_dal.get_all_users()
+    return users
 
 @user_router.post("/", response_model=ShowUser)
 async def create_user(body: UserCreate, db: AsyncSession = Depends(get_db)) -> ShowUser:

@@ -17,10 +17,6 @@ async def _create_new_user(body: UserCreate, session) -> ShowUser:
             name=body.name,
             surname=body.surname,
             email=body.email,
-            photo=body.photo,
-            city=body.city,
-            age=body.age,
-            phone=body.phone,
             hashed_password=Hasher.get_password_hash(body.password),
             roles=[
                 PortalRole.ROLE_PORTAL_USER,
@@ -30,11 +26,7 @@ async def _create_new_user(body: UserCreate, session) -> ShowUser:
             user_id=user.user_id,
             name=user.name,
             surname=user.surname,
-            photo=user.photo,
             email=user.email,
-            city=user.city,
-            age=user.age,
-            phone=user.phone,
             is_active=user.is_active,
             )
 

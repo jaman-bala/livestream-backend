@@ -22,9 +22,6 @@ class ShowUser(TunedModel):
     name: str
     surname: str
     email: EmailStr
-    city: str
-    age: int
-    phone: int
     is_active: bool
 
 
@@ -33,10 +30,6 @@ class UserCreate(BaseModel):
     surname: str
     email: EmailStr
     password: str
-    photo: str
-    city: str
-    age: int
-    phone: int
 
 
 class DeleteUserResponse(BaseModel):

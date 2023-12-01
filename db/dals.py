@@ -1,6 +1,6 @@
 from typing import Union
 from uuid import UUID
-
+from typing import List
 from sqlalchemy import and_
 from sqlalchemy import select
 from sqlalchemy import update
@@ -21,15 +21,16 @@ class UserDAL:
     def __init__(self, db_session: AsyncSession):
         self.db_session = db_session
 
+    async def get_all_users(self) -> List[User]:
+        query = select(User)
+        res = await self.db_session.execute(query)
+        return res.scalars().all()
+
     async def create_user(
         self,
         name: str,
         surname: str,
         email: str,
-        photo: str,
-        city: str,
-        age: int,
-        phone: int,
         hashed_password: str,
         roles: list[PortalRole],
     ) -> User:
@@ -37,10 +38,6 @@ class UserDAL:
             name=name,
             surname=surname,
             email=email,
-            photo=photo,
-            city=city,
-            age=age,
-            phone=phone,
             hashed_password=hashed_password,
             roles=roles,
         )

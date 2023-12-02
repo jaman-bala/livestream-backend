@@ -5,8 +5,8 @@ from starlette_exporter import handle_metrics
 from starlette_exporter import PrometheusMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.handlers import user_router
-from api.login_handler import login_router
+from api.users.handlers import user_router
+from api.users.login_handler import login_router
 from api.service import service_router
 
 #########################

@@ -15,6 +15,7 @@ from db.models import User
 ###########################################################
 
 
+
 class UserDAL:
     """Data Access Layer for operating user info"""
 

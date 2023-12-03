@@ -9,6 +9,8 @@ from api.users.handlers import user_router
 from api.users.login_handler import login_router
 from api.service import service_router
 
+from api.cameras.routes import stream_router
+
 #########################
 # BLOCK WITH API ROUTES #
 #########################
@@ -36,7 +38,7 @@ main_api_router = APIRouter()
 main_api_router.include_router(user_router, prefix="/api/user", tags=["user"])
 main_api_router.include_router(login_router, prefix="/login", tags=["login"])
 main_api_router.include_router(service_router, tags=["service"])
-
+main_api_router.include_router(stream_router, tags=["/api/stream"])
 app.include_router(main_api_router)
 
 if __name__ == "__main__":

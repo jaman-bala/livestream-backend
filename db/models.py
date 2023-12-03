@@ -3,7 +3,6 @@ from enum import Enum
 from sqlalchemy import Boolean, Column, String, Integer, ARRAY, Date
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import declarative_base
-from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 
 
@@ -26,4 +25,10 @@ class User(Base):
     roles = Column(ARRAY(String), nullable=False)
 
 
+class Camera(Base):
+    __tablename__ = "cameras"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, index=True)
+    url = Column(String)
 

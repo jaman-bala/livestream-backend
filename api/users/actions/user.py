@@ -1,4 +1,4 @@
-from http.client import HTTPException
+from fastapi import HTTPException
 from typing import Union
 from uuid import UUID
 
@@ -20,6 +20,8 @@ async def _create_new_user(body: UserCreate, session) -> ShowUser:
             hashed_password=Hasher.get_password_hash(body.password),
             roles=[
                 PortalRole.ROLE_PORTAL_USER,
+                PortalRole.ROLE_PORTAL_ADMIN,
+                PortalRole.ROLE_PORTAL_SUPERADMIN,
             ],
         )
         return ShowUser(
@@ -32,12 +34,9 @@ async def _create_new_user(body: UserCreate, session) -> ShowUser:
 
 
 async def _delete_user(user_id, session) -> Union[UUID, None]:
-    async with session.begin():
-        user_dal = UserDAL(session)
-        deleted_user_id = await user_dal.delete_user(
-            user_id=user_id,
-        )
-        return deleted_user_id
+    user_dal = UserDAL(session)
+    deleted_user_id = await user_dal.delete_user(user_id=user_id)
+    return deleted_user_id
 
 
 async def _update_user(
@@ -52,13 +51,11 @@ async def _update_user(
 
 
 async def _get_user_by_id(user_id, session) -> Union[User, None]:
-    async with session.begin():
-        user_dal = UserDAL(session)
-        user = await user_dal.get_user_by_id(
-            user_id=user_id,
-        )
-        if user is not None:
-            return user
+    user_dal = UserDAL(session)
+    user = await user_dal.get_user_by_id(user_id=user_id)
+
+    if user is not None:
+        return user
 
 
 def check_user_permissions(target_user: User, current_user: User) -> bool:
@@ -66,26 +63,13 @@ def check_user_permissions(target_user: User, current_user: User) -> bool:
         raise HTTPException(
             status_code=406, detail="SUPERADMIN cannot be deleted via API."
         )
+
+    # Allow users with ROLE_PORTAL_ADMIN to delete other users
+    if PortalRole.ROLE_PORTAL_ADMIN in current_user.roles:
+        return True
+
     if target_user.user_id != current_user.user_id:
-        # check admin role
-        if not {
-            PortalRole.ROLE_PORTAL_ADMIN,
-            PortalRole.ROLE_PORTAL_SUPERADMIN,
-        }.intersection(current_user.roles):
-            return False
-        # check admin deactivate superadmin attempt
-        if (
-            PortalRole.ROLE_PORTAL_SUPERADMIN in target_user.roles
-            and PortalRole.ROLE_PORTAL_ADMIN in current_user.roles
-        ):
-            return False
-        # check admin deactivate admin attempt
-        if (
-            PortalRole.ROLE_PORTAL_ADMIN in target_user.roles
-            and PortalRole.ROLE_PORTAL_ADMIN in current_user.roles
-        ):
-            return False
-        # chek admin deactivate admin attempt
-        if PortalRole.ROLE_PORTAL_ADMIN in target_user.roles and PortalRole.ROLE_PORTAL_ADMIN in current_user.roles:
-            return False
+        # Add any additional conditions or custom logic as needed
+        return False
+
     return True

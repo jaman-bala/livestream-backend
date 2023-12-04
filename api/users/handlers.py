@@ -25,7 +25,8 @@ from db.session import get_db
 logger = getLogger(__name__)
 user_router = APIRouter()
 
-@user_router.get("/", response_model=List[ShowUser])
+
+@user_router.get("/", response_model=None)
 async def get_all_users(db: AsyncSession = Depends(get_db)):
     user_dal = UserDAL(db)
     users = await user_dal.get_all_users()
@@ -46,7 +47,9 @@ async def delete_user(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user_from_token)
 ) -> DeleteUserResponse:
-    user_for_deletion = await _get_user_by_id(user_id, db)
+    await db.commit()  # Закрыть предыдущую транзакцию, если она существует
+    async with db.begin():
+        user_for_deletion = await _get_user_by_id(user_id, db)
     if user_for_deletion is None:
         raise HTTPException(
             status_code=404, detail=f"User with id {user_id} not found."
@@ -134,7 +137,7 @@ async def revoke_admin_privilege(
     return UpdatedUserResponse(updated_user_id=updated_user_id)
 
 
-@user_router.get("/", response_model=ShowUser)
+@user_router.get("/{user_id}", response_model=ShowUser)
 async def get_user_by_id\
                 (user_id: UUID,
                  db: AsyncSession = Depends(get_db),
@@ -178,4 +181,3 @@ async def update_user_by_id(
         logger.error(err)
         raise HTTPException(status_code=503, detail=f"database error: {err}")
     return UpdatedUserResponse(updated_user_id=updated_user_id)
-

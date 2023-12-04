@@ -33,7 +33,7 @@ class UserDAL:
         surname: str,
         email: str,
         hashed_password: str,
-        roles: list[PortalRole],
+        roles: List[PortalRole],
     ) -> User:
         new_user = User(
             name=name,
@@ -57,6 +57,8 @@ class UserDAL:
         deleted_user_id_row = res.fetchone()
         if deleted_user_id_row is not None:
             return deleted_user_id_row[0]
+        else:
+            return None
 
     async def get_user_by_id(self, user_id: UUID) -> Union[User, None]:
         query = select(User).where(User.user_id == user_id)

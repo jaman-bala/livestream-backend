@@ -1,13 +1,14 @@
 import re
 import uuid
 from typing import Optional
-
+from typing import List
 from fastapi import HTTPException
 from pydantic import BaseModel
 from pydantic import constr
 from pydantic import EmailStr
 from pydantic import validator
 
+from db.models import PortalRole
 
 LETTER_MATCH_PATTERN = re.compile(r"[a-zA-Zа-яА-Я\-]+$")
 
@@ -30,6 +31,7 @@ class UserCreate(BaseModel):
     surname: str
     email: EmailStr
     password: str
+    roles: List[PortalRole]
 
 
 class DeleteUserResponse(BaseModel):

@@ -20,8 +20,6 @@ async def _create_new_user(body: UserCreate, session) -> ShowUser:
             hashed_password=Hasher.get_password_hash(body.password),
             roles=[
                 PortalRole.ROLE_PORTAL_USER,
-                PortalRole.ROLE_PORTAL_ADMIN,
-                PortalRole.ROLE_PORTAL_SUPERADMIN,
             ],
         )
         return ShowUser(
